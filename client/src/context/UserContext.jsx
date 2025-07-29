@@ -13,13 +13,6 @@ export const UserProvider = ({ children }) => {
   const [singleBlogLoading, setSingleBlogLoading] = useState(true);
   const [allComments, setAllComments] = useState([]);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-  if (!BACKEND_URL) {
-    console.error(
-      "REACT_APP_BACKEND_URL is not defined in environment variables"
-    );
-  }
-
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
@@ -36,9 +29,13 @@ export const UserProvider = ({ children }) => {
       data.append(key, formData[key]);
     }
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/user/signup`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/user/signup`,
+        data,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       const { user, token } = res.data;
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
@@ -57,7 +54,7 @@ export const UserProvider = ({ children }) => {
   const handleUserLogin = async (formData) => {
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/api/user/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/user/login`,
         formData
       );
       const { token, user } = response.data;
@@ -86,7 +83,7 @@ export const UserProvider = ({ children }) => {
   const handlePostBlogByUser = async (formData) => {
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/api/blog/post-blog`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/post-blog`,
         formData,
         {
           headers: {
@@ -110,11 +107,14 @@ export const UserProvider = ({ children }) => {
 
   const handleGetPostOfAuthor = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/blog/get-blog`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/get-blog`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setAuthorPosts(response.data.posts);
     } catch (error) {
@@ -128,9 +128,12 @@ export const UserProvider = ({ children }) => {
 
   const handleDeletePostAuthor = async (postId) => {
     try {
-      await axios.delete(`${BACKEND_URL}/api/blog/delete-blog/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/delete-blog/${postId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setAuthorPosts((prevPosts) =>
         prevPosts.filter((post) => post._id !== postId)
@@ -147,7 +150,9 @@ export const UserProvider = ({ children }) => {
 
   const handleGetAllBlogs = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/blog/all-blog`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/all-blog`
+      );
       const allBlogs = response.data.posts || [];
       setAllBlogPosts(allBlogs);
       return allBlogs;
@@ -163,7 +168,7 @@ export const UserProvider = ({ children }) => {
   const handleGetSingleBlogPost = async (postId) => {
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/api/blog/all-blog/${postId}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/all-blog/${postId}`
       );
       const blog = response.data.blog;
       setSingleBlog(blog);
@@ -181,7 +186,9 @@ export const UserProvider = ({ children }) => {
   const handleCommentPost = async (postId, formData) => {
     try {
       const res = await axios.post(
-        `${BACKEND_URL}/api/comment/${postId}/post-comment`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/comment/${postId}/post-comment`,
         formData,
         {
           headers: {
@@ -203,7 +210,7 @@ export const UserProvider = ({ children }) => {
   const handleGetComments = async (postId) => {
     try {
       const res = await axios.get(
-        `${BACKEND_URL}/api/comment/${postId}/comments`
+        `${import.meta.env.VITE_BACKEND_URL}/api/comment/${postId}/comments`
       );
 
       setAllComments(res.data.comments);
