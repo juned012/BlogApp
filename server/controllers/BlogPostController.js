@@ -106,3 +106,28 @@ export const handleViewBlog = async (req, res) => {
       .json({ message: "Error fetching blog post", error: error.message });
   }
 };
+
+export const editBlogPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const updateData = req.body;
+
+    const updatedPost = await BlogModel.findByIdAndUpdate(postId, updateData, {
+      new: true,
+    });
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    return res.status(200).json({
+      message: "Blog post updated successfully",
+      blog: updatedPost,
+    });
+  } catch (error) {
+    console.error("Error while editing blog post:", error);
+    return res
+      .status(500)
+      .json({ message: "Error while editing blog post", error: error.message });
+  }
+};

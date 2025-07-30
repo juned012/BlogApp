@@ -76,6 +76,11 @@ export const UserProvider = ({ children }) => {
   const logoutUser = () => {
     setUser(null);
     setToken("");
+    setAuthorPosts([]);
+    setAllBlogPosts([]);
+    setSingleBlog(null);
+    setSingleBlogLoading(true);
+    setAllComments([]);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
@@ -166,6 +171,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const handleGetSingleBlogPost = async (postId) => {
+    setSingleBlogLoading(true);
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/blog/all-blog/${postId}`
@@ -221,6 +227,30 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const handleEditBlogPost = async (postId, updateData) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/blog/edit-blog/${postId}`,
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const updatedBlog = response.data.blog;
+
+      return updatedBlog;
+    } catch (error) {
+      console.error(
+        "Error editing blog post:",
+        error.response?.data?.message || error.message
+      );
+      throw error;
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -242,6 +272,7 @@ export const UserProvider = ({ children }) => {
         handleCommentPost,
         handleGetComments,
         allComments,
+        handleEditBlogPost,
       }}
     >
       {children}

@@ -1,16 +1,37 @@
 import { useContext, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AddBlog from "../../components/AddBlog";
 import { Plus } from "lucide-react";
 import { UserContext } from "../../context/UserContext";
+import AddBlog from "../../components/AddBlog";
+import EditBlog from "../../components/EditBlog";
 
 const AuthorDashboard = () => {
   const { authorPosts, handleGetPostOfAuthor, handleDeletePostAuthor } =
     useContext(UserContext);
+
   const [isOpenEditor, setIsOpenEditor] = useState(false);
+  const [blogToEdit, setBlogToEdit] = useState(null);
+
   useEffect(() => {
     handleGetPostOfAuthor();
   }, []);
+
+  const openAddModal = () => {
+    setBlogToEdit(null);
+    setIsOpenEditor(true);
+  };
+
+  const openEditModal = (blog) => {
+    setBlogToEdit(blog);
+    setIsOpenEditor(true);
+  };
+
+  const closeEditorModal = async () => {
+    setIsOpenEditor(false);
+    setBlogToEdit(null);
+    await handleGetPostOfAuthor(); // Refetch posts after add/edit
+  };
+
   return (
     <motion.div
       className="max-w-5xl mx-auto p-6 space-y-6 min-h-screen"
@@ -23,7 +44,7 @@ const AuthorDashboard = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsOpenEditor(true)}
+          onClick={openAddModal}
           className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-md shadow hover:bg-orange-700 transition"
         >
           <Plus size={18} /> Post Blog
@@ -48,9 +69,9 @@ const AuthorDashboard = () => {
         }}
       >
         {authorPosts && authorPosts.length > 0 ? (
-          authorPosts.map((blog, index) => (
+          authorPosts.map((blog) => (
             <motion.div
-              key={blog._id || index}
+              key={blog._id}
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },
@@ -76,7 +97,10 @@ const AuthorDashboard = () => {
                 </span>
               </div>
               <div className="space-x-2">
-                <button className="text-blue-600 text-sm hover:underline">
+                <button
+                  onClick={() => openEditModal(blog)}
+                  className="text-blue-600 text-sm hover:underline"
+                >
                   Edit
                 </button>
                 <button
@@ -93,9 +117,13 @@ const AuthorDashboard = () => {
         )}
       </motion.div>
 
-      {/* Modal */}
       <AnimatePresence>
-        {isOpenEditor && <AddBlog onClose={() => setIsOpenEditor(false)} />}
+        {isOpenEditor &&
+          (blogToEdit ? (
+            <EditBlog blog={blogToEdit} onClose={closeEditorModal} />
+          ) : (
+            <AddBlog onClose={closeEditorModal} />
+          ))}
       </AnimatePresence>
     </motion.div>
   );

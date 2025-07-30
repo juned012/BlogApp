@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URI, // no curly braces here
+    origin: process.env.CLIENT_URI,
   })
 );
 
